@@ -1,0 +1,439 @@
+<!doctype html>
+<html>
+<head>
+  <style>body{font-family:verdana;padding-left:15%;padding-right:15%;}h3{text-align:center;}table {margin: auto;}</style>
+</head>
+<body>
+<h3>Stout Case Study 1</h3>
+<h5 style="text-align:center">2021 Feb 18 (Zhi Ye)</h5>
+<h4>Par t : Introduce and Read Data</h4>
+
+  <p> There are 11 columns in in this dataset.<br />
+
+    step - maps a unit of time in the real world. In this case 1 step is 1 hour of time. Total steps 744 (30 days simulation).<br />
+
+    type - CASH-IN, CASH-OUT, DEBIT, PAYMENT and TRANSFER.<br />
+
+    amount - amount of the transaction in local currency.<br />
+
+    nameOrig - customer who started the transaction<br />
+
+    oldbalanceOrg - initial balance before the transaction<br />
+
+    newbalanceOrig - new balance after the transaction<br />
+
+    nameDest - customer who is the recipient of the transaction<br />
+
+    oldbalanceDest - initial balance recipient before the transaction. Note that there is not information for customers that start with M (Merchants).<br />
+
+    newbalanceDest - new balance recipient after the transaction. Note that there is not information for customers that start with M (Merchants).<br />
+
+    isFraud - This is the transactions made by the fraudulent agents inside the simulation. In this specific dataset the fraudulent behavior of the agents aims to profit by taking control or customers accounts and try to empty the funds by transferring to another account and then cashing out of the system.<br />
+
+    isFlaggedFraud - The business model aims to control massive transfers from one account to another and flags illegal attempts. An illegal attempt in this dataset is an attempt to transfer more than 200.000 in a single transaction.<br />
+
+    The first 5 data is shown as below.
+  </p>
+
+  <table border="1" class="dataframe">
+    <thead>
+      <tr style="text-align: right;">
+        <th></th>
+        <th>0</th>
+        <th>1</th>
+        <th>2</th>
+        <th>3</th>
+        <th>4</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <th>step</th>
+        <td>1</td>
+        <td>1</td>
+        <td>1</td>
+        <td>1</td>
+        <td>1</td>
+      </tr>
+      <tr>
+        <th>type</th>
+        <td>PAYMENT</td>
+        <td>PAYMENT</td>
+        <td>TRANSFER</td>
+        <td>CASH_OUT</td>
+        <td>PAYMENT</td>
+      </tr>
+      <tr>
+        <th>amount</th>
+        <td>9839.64</td>
+        <td>1864.28</td>
+        <td>181</td>
+        <td>181</td>
+        <td>11668.1</td>
+      </tr>
+      <tr>
+        <th>nameOrig</th>
+        <td>C1231006815</td>
+        <td>C1666544295</td>
+        <td>C1305486145</td>
+        <td>C840083671</td>
+        <td>C2048537720</td>
+      </tr>
+      <tr>
+        <th>oldbalanceOrg</th>
+        <td>170136</td>
+        <td>21249</td>
+        <td>181</td>
+        <td>181</td>
+        <td>41554</td>
+      </tr>
+      <tr>
+        <th>newbalanceOrig</th>
+        <td>160296</td>
+        <td>19384.7</td>
+        <td>0</td>
+        <td>0</td>
+        <td>29885.9</td>
+      </tr>
+      <tr>
+        <th>nameDest</th>
+        <td>M1979787155</td>
+        <td>M2044282225</td>
+        <td>C553264065</td>
+        <td>C38997010</td>
+        <td>M1230701703</td>
+      </tr>
+      <tr>
+        <th>oldbalanceDest</th>
+        <td>0</td>
+        <td>0</td>
+        <td>0</td>
+        <td>21182</td>
+        <td>0</td>
+      </tr>
+      <tr>
+        <th>newbalanceDest</th>
+        <td>0</td>
+        <td>0</td>
+        <td>0</td>
+        <td>0</td>
+        <td>0</td>
+      </tr>
+      <tr>
+        <th>isFraud</th>
+        <td>0</td>
+        <td>0</td>
+        <td>1</td>
+        <td>1</td>
+        <td>0</td>
+      </tr>
+      <tr>
+        <th>isFlaggedFraud</th>
+        <td>0</td>
+        <td>0</td>
+        <td>0</td>
+        <td>0</td>
+        <td>0</td>
+      </tr>
+    </tbody>
+  </table>
+  
+<h4>Part 2: EDA & Process New features</h4>
+
+ <p> Some fraud might happend in specific time, like midnight. We process hour utilizing step.<br />
+
+     Also, we calculate the change of balance in original account and destination account: balanceOrig, balanceDest. <br />
+
+     Accounts with many activities may be fraud. We process 2 new features: nameOrig_count, nameDest_count, and merge them into original dataset. <br /> 
+    
+     The dataset is shown as below.</p>
+
+     <table border="1" class="dataframe">
+        <thead>
+          <tr style="text-align: right;">
+            <th></th>
+            <th>0</th>
+            <th>1</th>
+            <th>2</th>
+            <th>3</th>
+            <th>4</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th>step</th>
+            <td>1</td>
+            <td>1</td>
+            <td>1</td>
+            <td>6</td>
+            <td>7</td>
+          </tr>
+          <tr>
+            <th>type</th>
+            <td>PAYMENT</td>
+            <td>PAYMENT</td>
+            <td>TRANSFER</td>
+            <td>TRANSFER</td>
+            <td>CASH_IN</td>
+          </tr>
+          <tr>
+            <th>amount</th>
+            <td>9839.64</td>
+            <td>1864.28</td>
+            <td>181</td>
+            <td>109986</td>
+            <td>10256.2</td>
+          </tr>
+          <tr>
+            <th>nameOrig</th>
+            <td>C1231006815</td>
+            <td>C1666544295</td>
+            <td>C1305486145</td>
+            <td>C570434649</td>
+            <td>C111105514</td>
+          </tr>
+          <tr>
+            <th>oldbalanceOrg</th>
+            <td>170136</td>
+            <td>21249</td>
+            <td>181</td>
+            <td>41851</td>
+            <td>3.76608e+06</td>
+          </tr>
+          <tr>
+            <th>newbalanceOrig</th>
+            <td>160296</td>
+            <td>19384.7</td>
+            <td>0</td>
+            <td>0</td>
+            <td>3.77634e+06</td>
+          </tr>
+          <tr>
+            <th>nameDest</th>
+            <td>M1979787155</td>
+            <td>M2044282225</td>
+            <td>C553264065</td>
+            <td>C553264065</td>
+            <td>C553264065</td>
+          </tr>
+          <tr>
+            <th>oldbalanceDest</th>
+            <td>0</td>
+            <td>0</td>
+            <td>0</td>
+            <td>0</td>
+            <td>109986</td>
+          </tr>
+          <tr>
+            <th>newbalanceDest</th>
+            <td>0</td>
+            <td>0</td>
+            <td>0</td>
+            <td>109986</td>
+            <td>99729.4</td>
+          </tr>
+          <tr>
+            <th>isFraud</th>
+            <td>0</td>
+            <td>0</td>
+            <td>1</td>
+            <td>0</td>
+            <td>0</td>
+          </tr>
+          <tr>
+            <th>isFlaggedFraud</th>
+            <td>0</td>
+            <td>0</td>
+            <td>0</td>
+            <td>0</td>
+            <td>0</td>
+          </tr>
+          <tr>
+            <th>hour</th>
+            <td>1</td>
+            <td>1</td>
+            <td>1</td>
+            <td>6</td>
+            <td>7</td>
+          </tr>
+          <tr>
+            <th>balanceOrig</th>
+            <td>-9839.64</td>
+            <td>-1864.28</td>
+            <td>-181</td>
+            <td>-41851</td>
+            <td>10256.2</td>
+          </tr>
+          <tr>
+            <th>balanceDest</th>
+            <td>0</td>
+            <td>0</td>
+            <td>0</td>
+            <td>109986</td>
+            <td>-10256.2</td>
+          </tr>
+          <tr>
+            <th>nameOrig_count</th>
+            <td>1</td>
+            <td>1</td>
+            <td>1</td>
+            <td>1</td>
+            <td>2</td>
+          </tr>
+          <tr>
+            <th>nameDest_count</th>
+            <td>1</td>
+            <td>1</td>
+            <td>44</td>
+            <td>44</td>
+            <td>44</td>
+          </tr>
+        </tbody>
+      </table>
+  
+<p> Now, let's see the distribution of some features. We utilize pandas profiling package.  It generates a HTML to provide some information about the  data, and visulize it.</p>
+
+  
+<a href="https://htmlpreview.github.io/?https://github.com/EcholynYe/Stout_Case_Study/blob/main/case1/data2_report.html" target="_blank">Report for data</a>
+
+<p>As is shown, in the dataset:<br />
+    
+    1. There is no missing data in this dataset.<br />
+
+    2. Features amount, balanceOrig, balanceDest are skewed.<br />
+    
+    3. Features nameOrig, nameDest are of high cardinality.<br />
+    
+    4. Features oldbalanceOrg, newbalanceOrig, oldbalanceDest, newbalanceDest, hour, balanceOrig, balanceDest contains many zeros.<br />
+    
+    Accounts with many activities may be fraud. We process 2 new features: nameOrig_count, nameDest_count, and merge them into original dataset.</p>
+
+<p>Let's see the information and distribution of features in fraud data.</p>
+
+<a href="https://htmlpreview.github.io/?https://github.com/EcholynYe/Stout_Case_Study/blob/main/case1/data2fraud_report.html" target="_blank">Report for fraud data</a>
+
+<p>As is shown,<br />
+
+    1. for frauds, there are just 2 type transactions: CASH_OUT and TRANSFER.<br />
+    
+    2. for frauds, the balanceOrig are all less than 0.<br />
+    
+    3. for frauds, the balanceDest features contains lots of 10,000,000.</p>
+
+<h4>Part 3: Feature Engineering & Algorithms</h4>
+
+ <p>We transform categorical feature into one-hot-encoding. Also, we delete nameOrig and nameDest, for we have kept their count information.</p>
+
+ <h5>Logistic Regression</h5>
+ 
+ <p>Because the dataset is imbalanced, we use F1 score to see the performance of algorithm.<br />
+
+    F1 score of Logistic Regression: 0.5553496989346919.<br />
+    
+    Logistic Regression doesn't perform well.</p>
+
+<h5>Random Forest</h5>
+ 
+ <p>Because the dataset is imbalanced, we use F1 score to see the performance of Random Forest.<br />
+
+    F1 score of Random Forest: 0.8780941116837035.<br />
+    
+    Random Forest performs well as is shown in F1 score, and it shows feature inportance.</p>
+ 
+    <table border="1" class="dataframe">
+        <thead>
+          <tr style="text-align: right;">
+            <th></th>
+            <th>feature_importances</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th>balanceOrig</th>
+            <td>0.313979</td>
+          </tr>
+          <tr>
+            <th>balanceDest</th>
+            <td>0.149411</td>
+          </tr>
+          <tr>
+            <th>newbalanceDest</th>
+            <td>0.117402</td>
+          </tr>
+          <tr>
+            <th>oldbalanceOrg</th>
+            <td>0.105300</td>
+          </tr>
+          <tr>
+            <th>amount</th>
+            <td>0.079536</td>
+          </tr>
+          <tr>
+            <th>oldbalanceDest</th>
+            <td>0.055247</td>
+          </tr>
+          <tr>
+            <th>hour</th>
+            <td>0.046488</td>
+          </tr>
+          <tr>
+            <th>nameDest_count</th>
+            <td>0.045870</td>
+          </tr>
+          <tr>
+            <th>type_TRANSFER</th>
+            <td>0.033916</td>
+          </tr>
+          <tr>
+            <th>newbalanceOrig</th>
+            <td>0.027748</td>
+          </tr>
+          <tr>
+            <th>type_CASH_OUT</th>
+            <td>0.020266</td>
+          </tr>
+          <tr>
+            <th>type_PAYMENT</th>
+            <td>0.003423</td>
+          </tr>
+          <tr>
+            <th>type_CASH_IN</th>
+            <td>0.001026</td>
+          </tr>
+          <tr>
+            <th>nameOrig_count</th>
+            <td>0.000230</td>
+          </tr>
+          <tr>
+            <th>type_DEBIT</th>
+            <td>0.000156</td>
+          </tr>
+        </tbody>
+      </table>
+
+ <p> oldbalanceOrg is the most important feature.</p>
+
+<h5>Neural Network</h5>
+
+ <p>F1 score of Neural Network: 0.8589850946240161.<br />
+
+    Neural Network also performs well as is shown in F1 score.</p>
+
+<h4>Part 4: ROC Score</h4>
+
+<div align="center">
+    <table style="width=100%">
+        <tr>
+            <td align="middle">
+            <img src="roc_curve.png" width="400px" />
+            <figcaption align="middle">Roc Curve</figcaption>
+            <br>
+        </tr>
+    </table>
+</div>
+
+<p>As is shown, the RF and NN algorithms can provide a classifier, which avoid <b>reporting normal transactions as fraud</b>, while have 0.8 True Positive Rate.</p>
+
+</body>
+
+</html>
